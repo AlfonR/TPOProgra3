@@ -1,1 +1,93 @@
+package Programacion3;
 
+public class ejercicioDos {
+
+	// Clase interna que representa una actividad con su nombre, hora de inicio y hora de fin
+    public static class Actividad {
+    	// Atributos de cada actividad
+    	String nombre;
+        int inicio;
+        int fin;
+
+        
+        Actividad(String nombre, int inicio, int fin) {
+            this.nombre = nombre;
+            this.inicio = inicio;
+            this.fin = fin;
+        }
+    }
+
+    // ------------------ MERGE SORT PARA ORDENAR ACTIVIDADES ------------------
+    public static void mergeSort(Actividad[] S, int inicio, int fin) {
+        if (inicio < fin) {
+            int medio = (inicio + fin) / 2;
+            mergeSort(S, inicio, medio);
+            mergeSort(S, medio + 1, fin);
+            merge(S, inicio, medio, fin);
+        }
+    }
+
+    // ------------------ MERGE -----------------
+    public static void merge(Actividad[] S, int inicio, int medio, int fin) {
+        Actividad[] R = new Actividad[fin - inicio + 1];
+        int i = inicio;
+        int j = medio + 1;
+
+        for (int k = 0; k <= fin - inicio; k++) {
+            if ((j > fin) || (i <= medio && S[i].fin <= S[j].fin)) {
+                R[k] = S[i];
+                i = i + 1;
+            } else {
+                R[k] = S[j];
+                j = j + 1;
+            }
+        }
+
+        for (int k = 0; k <= fin - inicio; k++) {
+            S[inicio + k] = R[k];
+        }
+    }
+
+    // ------------------ ALGORITMO GREEDY ------------------
+    public static void actividadesMaximas(Actividad[] tareas) {
+        mergeSort(tareas, 0, tareas.length - 1);
+
+        System.out.println(" Actividades seleccionadas (máxima cantidad sin superposición):");
+        int finActual = -1;
+        int contador = 0;
+
+        for (int i = 0; i < tareas.length; i++) {
+            if (tareas[i].inicio >= finActual) {
+                System.out.println("  " + tareas[i].nombre + 
+                                   " (Inicio: " + tareas[i].inicio + 
+                                   ", Fin: " + tareas[i].fin + ")");
+                finActual = tareas[i].fin;
+                contador++;
+            }
+        }
+
+        System.out.println("\nTotal de actividades compatibles: " + contador);
+    }
+
+    // ------------------ MAIN ------------------
+    public static void main(String[] args) {
+        Actividad[] tareas = {
+            new Actividad("A1", 1, 3),
+            new Actividad("A2", 2, 5),
+            new Actividad("A3", 4, 6),
+            new Actividad("A4", 6, 8),
+            new Actividad("A5", 5, 7),
+            new Actividad("A6", 8, 9)
+        };
+
+        System.out.println("LISTA DE ACTIVIDADES DISPONIBLES:");
+        for (int i = 0; i < tareas.length; i++) {
+            System.out.println("  " + tareas[i].nombre + 
+                               " (Inicio: " + tareas[i].inicio + 
+                               ", Fin: " + tareas[i].fin + ")");
+        }
+
+        System.out.println();
+        actividadesMaximas(tareas);
+    }
+}
