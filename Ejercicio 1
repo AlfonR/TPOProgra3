@@ -1,1 +1,146 @@
+package Programacion3;
+import java.util.*;
 
+import java.util.Random;
+
+public class ejercicioUno {
+
+    // Clase interna Punto
+    static class Punto {
+        double x, y;
+        public Punto(double x, double y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    // Calcula la distancia entre dos puntos
+    static double distancia(Punto a, Punto b) {
+        double dx = a.x - b.x;
+        double dy = a.y - b.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    // --- Solución ingenua O(n²) ---
+    static double distanciaMinimaIngenua(Punto[] puntos) {
+        double min = Double.MAX_VALUE;
+        int n = puntos.length;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                double d = distancia(puntos[i], puntos[j]);
+                if (d < min) min = d;
+            }
+        }
+        return min;
+    }
+
+    // --- Divide y Conquista O(n log n) ---
+    static double distanciaMinimaDyC(Punto[] puntos) {
+        int n = puntos.length;
+        if (n <= 3) {
+            return distanciaMinimaIngenua(puntos);
+        }
+
+        int mitad = n / 2;
+        Punto[] izquierda = new Punto[mitad];
+        Punto[] derecha = new Punto[n - mitad];
+
+        for (int i = 0; i < mitad; i++) izquierda[i] = puntos[i];
+        for (int i = mitad; i < n; i++) derecha[i - mitad] = puntos[i];
+
+        double distIzq = distanciaMinimaDyC(izquierda);
+        double distDer = distanciaMinimaDyC(derecha);
+        double distMin = (distIzq < distDer) ? distIzq : distDer;
+
+        // Calcular franja (puntos cercanos al punto medio)
+        double lineaMediaX = puntos[mitad].x;
+        Punto[] franja = new Punto[n];
+        int k = 0;
+        for (int i = 0; i < n; i++) {
+            if (Math.abs(puntos[i].x - lineaMediaX) < distMin) {
+                franja[k++] = puntos[i];
+            }
+        }
+
+        // Ordenar por coordenada - burbuja
+        for (int i = 0; i < k - 1; i++) {
+            for (int j = 0; j < k - i - 1; j++) {
+                if (franja[j].y > franja[j + 1].y) {
+                    Punto temp = franja[j];
+                    franja[j] = franja[j + 1];
+                    franja[j + 1] = temp;
+                }
+            }
+        }
+
+        // Comparar los puntos de la franja
+        for (int i = 0; i < k; i++) {
+            for (int j = i + 1; j < k && (franja[j].y - franja[i].y) < distMin; j++) {
+                double d = distancia(franja[i], franja[j]);
+                if (d < distMin) distMin = d;
+            }
+        }
+
+        return distMin;
+    }
+
+    // Generar puntos aleatorios
+    static Punto[] generarAleatorio(int cantidad, int limite, int valorInicial) {
+        Random random = new Random(valorInicial);
+        Punto[] puntos = new Punto[cantidad];
+
+        for (int i = 0; i < cantidad; i++) {
+            double x = random.nextInt(limite);
+            double y = random.nextInt(limite);
+            puntos[i] = new Punto(x, y);
+        }
+
+        return puntos;
+    }
+
+
+    // --- Programa principal ---
+    public static void main(String[] args) {
+
+        Punto[][] casos = {
+            { new Punto(2, 3), new Punto(12, 30), new Punto(40, 50),
+              new Punto(5, 1), new Punto(12, 10), new Punto(3, 4) },
+
+            { new Punto(0, 0), new Punto(1, 1), new Punto(1.1, 1.1),
+              new Punto(2, 2), new Punto(5, 5) },
+
+            { new Punto(0, 0), new Punto(2, 0), new Punto(4, 0),
+              new Punto(6, 0), new Punto(8, 0) },
+
+            { new Punto(5, 5), new Punto(5, 5), new Punto(10, 10),
+              new Punto(20, 20), new Punto(25, 25) },
+
+            generarAleatorio(10, 50, 1)
+        };
+
+        for (int i = 0; i < casos.length; i++) {
+            Punto[] lista = casos[i];
+
+            // Ordenar por X - burbuja
+            for (int a = 0; a < lista.length - 1; a++) {
+                for (int b = 0; b < lista.length - a - 1; b++) {
+                    if (lista[b].x > lista[b + 1].x) {
+                        Punto temp = lista[b];
+                        lista[b] = lista[b + 1];
+                        lista[b + 1] = temp;
+                    }
+                }
+            }
+
+            double ingenua = distanciaMinimaIngenua(lista);
+            double dyc = distanciaMinimaDyC(lista);
+
+            System.out.println("========== CASO " + (i + 1) + " ==========");
+            for (int j = 0; j < lista.length; j++) {
+                System.out.printf("(%.2f, %.2f) ", lista[j].x, lista[j].y);
+            }
+            System.out.println("\nDistancia mínima (Ingenua): " + ingenua);
+            System.out.println("Distancia mínima (Divide y Conquista): " + dyc + "\n");
+        }
+    }
+}
