@@ -1,1 +1,101 @@
+import java.util.ArrayList;
+import java.util.List;
+// Clase que representa un objeto con su peso y valor
+class Objeto {
+    int peso;
+    int valor;
+  // Constructor para inicializar peso y valor del objeto
+    public Objeto(int peso, int valor) {
+        this.peso = peso;
+        this.valor = valor;
+    }
+}
 
+public class ProblemaMochila {
+
+    public static int resolverMochila(List<Objeto> vectorObjetos, int pesoMaximo) {
+        int n = vectorObjetos.size();
+        int[][] M = new int[n][pesoMaximo + 1];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j <= pesoMaximo; j++) {
+
+                if (i == 0) {
+                    if (vectorObjetos.get(i).peso > j) {
+                        M[i][j] = 0;
+                    } else {
+                        M[i][j] = vectorObjetos.get(i).valor;
+                    }
+                } else {
+                    if (vectorObjetos.get(i).peso > j) {
+                        M[i][j] = M[i - 1][j];
+                    } else {
+                        // Calculamos dos opciones:
+                        // 1. No incluir el objeto actual
+                        int sinIncluir = M[i - 1][j];
+                        // 2. Incluir el objeto actual (sumar su valor + valor con peso restante)
+                        int incluyendo = M[i - 1][j - vectorObjetos.get(i).peso] + vectorObjetos.get(i).valor;
+                        // Guardamos el máximo de ambas opciones
+                        M[i][j] = Math.max(sinIncluir, incluyendo);
+                    }
+                }
+            }
+        }
+// El valor máximo se encuentra en la última celda de la matriz
+        return M[n - 1][pesoMaximo];
+    }
+
+    public static void main(String[] args) {
+
+        // ====== Caso 1 ======
+        List<Objeto> objetos1 = new ArrayList<>();
+        objetos1.add(new Objeto(2, 3));
+        objetos1.add(new Objeto(3, 4));
+        objetos1.add(new Objeto(4, 5));
+        objetos1.add(new Objeto(5, 8));
+        int capacidad1 = 5;
+        System.out.println("Caso 1 - Capacidad " + capacidad1 + ": Valor máximo = " +
+                resolverMochila(objetos1, capacidad1));
+
+        // ====== Caso 2 ======
+        List<Objeto> objetos2 = new ArrayList<>();
+        objetos2.add(new Objeto(1, 1));
+        objetos2.add(new Objeto(3, 4));
+        objetos2.add(new Objeto(4, 5));
+        objetos2.add(new Objeto(5, 7));
+        int capacidad2 = 7;
+        System.out.println("Caso 2 - Capacidad " + capacidad2 + ": Valor máximo = " +
+                resolverMochila(objetos2, capacidad2));
+
+        // ====== Caso 3 ======
+        List<Objeto> objetos3 = new ArrayList<>();
+        objetos3.add(new Objeto(4, 10));
+        objetos3.add(new Objeto(2, 4));
+        objetos3.add(new Objeto(3, 7));
+        objetos3.add(new Objeto(5, 12));
+        int capacidad3 = 8;
+        System.out.println("Caso 3 - Capacidad " + capacidad3 + ": Valor máximo = " +
+                resolverMochila(objetos3, capacidad3));
+
+        // ====== Caso 4 ======
+        List<Objeto> objetos4 = new ArrayList<>();
+        objetos4.add(new Objeto(1, 1));
+        objetos4.add(new Objeto(2, 2));
+        objetos4.add(new Objeto(3, 5));
+        objetos4.add(new Objeto(4, 6));
+        objetos4.add(new Objeto(5, 7));
+        int capacidad4 = 10;
+        System.out.println("Caso 4 - Capacidad " + capacidad4 + ": Valor máximo = " +
+                resolverMochila(objetos4, capacidad4));
+
+        // ====== Caso 5 ======
+        List<Objeto> objetos5 = new ArrayList<>();
+        objetos5.add(new Objeto(2, 12));
+        objetos5.add(new Objeto(1, 10));
+        objetos5.add(new Objeto(3, 20));
+        objetos5.add(new Objeto(2, 15));
+        int capacidad5 = 5;
+        System.out.println("Caso 5 - Capacidad " + capacidad5 + ": Valor máximo = " +
+                resolverMochila(objetos5, capacidad5));
+    }
+}
